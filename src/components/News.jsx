@@ -1,10 +1,38 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Weather from './Weather'
 import Calendar from './Calendar'
 import './News.css'
 import userImg from '../assets/images/user.jpg'
+import noImg from '../assets/images/no-img.png'
+import axios from 'axios'
 
 const News = () => {
+  const [headline, setHeadline] = useState(null)
+  const [news, setNews] = useState([])
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      const apiKey = import.meta.env.VITE_GNEWS_API_KEY;
+      const url = `https://gnews.io/api/v4/top-headlines?category=sports&lang=en&apikey=${apiKey}`;
+      
+      const response = await axios.get(url)
+      const fetchedNews = response.data.articles;
+
+      // Add fallback image if article doesn't have an image
+      fetchedNews.forEach((article) => {
+        if (!article.image) {
+          article.image = noImg;
+        }
+      });
+
+      setHeadline(fetchedNews[0])
+      setNews(fetchedNews.slice(1, 7))
+
+      console.log(fetchedNews[0]);
+    }
+    fetchNews()
+  }, [])
+  
   return (
     <div className="news">
       <header className="news-header">
@@ -61,8 +89,26 @@ const News = () => {
           </nav>
         </div>
         <div className="news-section">
-          <div className="headline">Headline</div>
-          <div className="news-grid">News Grid</div>
+          {headline && (
+            <div className="headline">
+              <img src={headline.image || noImg} alt={headline.title} />
+              <h2 className="headline-title">
+                {headline.title}
+                <i className="fa-regular fa-bookmark bookmark"></i>
+              </h2>
+            </div>
+          )}
+          <div className="news-grid">
+            {news.map((article, index) => (
+              <div key={index} className="news-grid-item">
+                <img src={article.image || noImg} alt={article.title} />
+                <h3>
+                  {article.title}
+                  <i className="fa-regular fa-bookmark bookmark"></i>
+                </h3>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="my-blogs">My Blogs</div>
         <div className="weather-calendar">
