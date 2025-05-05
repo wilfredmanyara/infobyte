@@ -22,42 +22,67 @@ const News = () => {
   const [headline, setHeadline] = useState(null)
   const [news, setNews] = useState([])
   const [selectedCategory, setSelectedCategory] = useState("general")
+  const [searchInput, setSearchInput] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const fetchNews = async () => {
       const apiKey = import.meta.env.VITE_GNEWS_API_KEY;
-      const url = `https://gnews.io/api/v4/top-headlines?category=${selectedCategory}&lang=en&apikey=${apiKey}`;
-      
-      const response = await axios.get(url)
-      const fetchedNews = response.data.articles;
-
-      // Add fallback image if article doesn't have an image
-      fetchedNews.forEach((article) => {
-        if (!article.image) {
-          article.image = noImg;
-        }
-      });
-
-      setHeadline(fetchedNews[0])
-      setNews(fetchedNews.slice(1, 7))
-
-      console.log(fetchedNews[0]);
-    }
-    fetchNews()
-  }, [selectedCategory])
+      let url;
+  
+      if (searchQuery) {
+        url = `https://gnews.io/api/v4/search?q=${searchQuery}&lang=en&apikey=${apiKey}`;
+      } else if (selectedCategory === "nation") {
+        url = `https://gnews.io/api/v4/search?q=Kenya&lang=en&country=ke&apikey=${apiKey}`;
+      } else {
+        url = `https://gnews.io/api/v4/top-headlines?category=${selectedCategory}&lang=en&apikey=${apiKey}`;
+      }
+  
+      try {
+        const response = await axios.get(url);
+        const fetchedNews = response.data.articles;
+  
+        fetchedNews.forEach((article) => {
+          if (!article.image) {
+            article.image = noImg;
+          }
+        });
+  
+        setHeadline(fetchedNews[0]);
+        setNews(fetchedNews.slice(1, 7));
+  
+      } catch (error) {
+        console.error("Failed to fetch news:", error);
+      }
+    };
+  
+    fetchNews();
+  }, [selectedCategory, searchQuery]);
+  
 
   const handleCategoryClick = (e, category) => {
     e.preventDefault()
     setSelectedCategory(category)
   }
   
+  const handleSearch = (e) => {
+    e.preventDefault()
+    setSearchQuery(searchInput)
+    setSearchInput('')
+}
+
   return (
     <div className="news">
       <header className="news-header">
         <h1 className="logo">Infobyte</h1>
         <div className="search-bar">
-          <form>
-            <input type="text" placeholder="Search News..." />
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Search News..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
             <button type="submit">
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
