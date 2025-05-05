@@ -6,14 +6,27 @@ import userImg from '../assets/images/user.jpg'
 import noImg from '../assets/images/no-img.png'
 import axios from 'axios'
 
+const categories = [
+  "ganeral",
+  "world",
+  "business",
+  "technology",
+  "entertainment",
+  "sports",
+  "science",
+  "health",
+  "nation",
+];
+
 const News = () => {
   const [headline, setHeadline] = useState(null)
   const [news, setNews] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState("general")
 
   useEffect(() => {
     const fetchNews = async () => {
       const apiKey = import.meta.env.VITE_GNEWS_API_KEY;
-      const url = `https://gnews.io/api/v4/top-headlines?category=sports&lang=en&apikey=${apiKey}`;
+      const url = `https://gnews.io/api/v4/top-headlines?category=${selectedCategory}&lang=en&apikey=${apiKey}`;
       
       const response = await axios.get(url)
       const fetchedNews = response.data.articles;
@@ -31,7 +44,12 @@ const News = () => {
       console.log(fetchedNews[0]);
     }
     fetchNews()
-  }, [])
+  }, [selectedCategory])
+
+  const handleCategoryClick = (e, category) => {
+    e.preventDefault()
+    setSelectedCategory(category)
+  }
   
   return (
     <div className="news">
@@ -55,33 +73,16 @@ const News = () => {
           <nav className="categories">
             <h1 className="nav-heading">Categories</h1>
             <div className="nav-links">
-              <a href="" className="nav-link">
-                General
-              </a>
-              <a href="" className="nav-link">
-                World
-              </a>
-              <a href="" className="nav-link">
-                Business
-              </a>
-              <a href="" className="nav-link">
-                Technology
-              </a>
-              <a href="" className="nav-link">
-                Entertainment
-              </a>
-              <a href="" className="nav-link">
-                Sports
-              </a>
-              <a href="" className="nav-link">
-                Science
-              </a>
-              <a href="" className="nav-link">
-                Health
-              </a>
-              <a href="" className="nav-link">
-                Nation
-              </a>
+              {categories.map((category) => (
+                <a
+                  href="#"
+                  key={category}
+                  className="nav-link"
+                  onClick={(e) => handleCategoryClick(e, category)}
+                >
+                  {category}
+                </a>
+              ))}
               <a href="" className="nav-link">
                 Bookmarks <i className="fa-regular fa-bookmark"></i>
               </a>
