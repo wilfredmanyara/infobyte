@@ -218,7 +218,14 @@ const handleBookmarkClick = (article) => {
           <Calendar />
         </div>
       </div>
-      <footer className="news-footer">Footer</footer>
+      <footer className="news-footer">
+        <p>
+          <span>Infobyte App</span>
+        </p>
+        <p>
+          &copy; All Rights Reserved. By Infobyte
+        </p>
+      </footer>
     </div>
   );
 }
